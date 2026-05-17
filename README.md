@@ -12,8 +12,7 @@ It supports authentication, CRUD notes, tags, archiving, public share links, and
 - Sharing: generate a public share link and view note at `/share/[shareId]`
 - AI: generate summary, action items, and suggested title for a note (Groq)
 
-## Demo Video (5–10 min)
-- Walkthrough: <PASTE_YOUR_DRIVE_OR_UNLISTED_YOUTUBE_LINK_HERE>
+
 
 ## Tech Stack
 
