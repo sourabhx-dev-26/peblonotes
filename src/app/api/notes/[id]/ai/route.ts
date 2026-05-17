@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/requireUser";
-import { getOpenAIClient } from "@/lib/openai";
+import OpenAI from "openai";
 
 function safeStringArray(x: unknown): string[] {
   if (!Array.isArray(x)) return [];
@@ -27,13 +27,18 @@ export async function POST(
 
   if (!note) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const client = getOpenAIClient();
-  if (!client) {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) {
     return NextResponse.json(
-      { error: "OPENAI_API_KEY is not set" },
+      { error: "GROQ_API_KEY is not set" },
       { status: 500 }
     );
   }
+
+  const client = new OpenAI({
+    apiKey,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
 
   const prompt = `
 You are an assistant for a notes app.
@@ -58,7 +63,7 @@ ${note.content}
 `.trim();
 
   const resp = await client.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "llama-3.1-8b-instant",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.3,
     response_format: { type: "json_object" },
@@ -92,6 +97,14 @@ ${note.content}
     },
     select: {
       id: true,
+      title: true,
+      content: true,
+      tags: true,
+      archived: true,
+      updatedAt: true,
+      createdAt: true,
+      isPublic: true,
+      shareId: true,
       summary: true,
       actionItems: true,
       aiSuggestedTitle: true,
@@ -100,5 +113,5 @@ ${note.content}
     },
   });
 
-  return NextResponse.json(updated, { status: 200 });
+  return NextResponse.json({ note: updated, provider: "groq" }, { status: 200 });
 }

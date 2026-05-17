@@ -1,87 +1,84 @@
 # PebloNotes
 
-PebloNotes is a secure note‑taking web app built with **Next.js (App Router)**, **TypeScript**, **Prisma**, and **PostgreSQL**.  
-It supports **JWT authentication**, CRUD notes, **tags**, **archiving**, **shareable links**, and **AI-assisted note actions**.
+PebloNotes is a secure note-taking web app built with **Next.js (App Router)**, **TypeScript**, **Prisma**, and **PostgreSQL**.  
+It supports authentication, CRUD notes, tags, archiving, public share links, and AI-assisted note actions.
 
 ## Features
 
-- Auth: Sign up, log in, log out, "me" endpoint (JWT/session based)
-- Notes: Create, read, update, delete
-- Tags: Add/manage tags for notes
-- Archive: Archive/unarchive notes
-- Sharing: Generate a share link and access a shared note by `shareId`
-- AI: AI helper endpoint for a note (requires OpenAI key if enabled)
+- Auth: sign up / log in / log out
+- Notes: create, read, update, delete
+- Tags: add and filter by tags
+- Archive: archive / unarchive notes
+- Sharing: generate a public share link and view note at `/share/[shareId]`
+- AI: generate summary, action items, and suggested title for a note (Groq)
 
 ## Tech Stack
 
 - Next.js + TypeScript
 - Prisma ORM
 - PostgreSQL
+- Groq (OpenAI-compatible API)
 - ESLint
 
 ## Prerequisites
 
-- Node.js 18+ (recommended)
-- PostgreSQL running locally
+- Node.js 18+
+- PostgreSQL (local or hosted)
 
 ## Setup (Local)
 
 ### 1) Install dependencies
-
 ```bash
 npm install
 ```
 
-### 2) Create environment file
+### 2) Environment variables
+Copy `.env.example` to `.env.local` and fill values:
 
-Copy `.env.example` to `.env.local` and fill in values:
-
-```bash
-# (Linux/macOS)
-cp .env.example .env.local
-```
-
-On Windows (CMD):
-
+**Windows (CMD):**
 ```bat
 copy .env.example .env.local
 ```
 
-Edit `.env.local` and set:
-
-- `DATABASE_URL` (your local Postgres connection)
-- `JWT_SECRET` (any long random string)
-- `OPENAI_API_KEY` (optional; only needed for AI endpoint)
+Update `.env.local` at minimum:
+- `DATABASE_URL`
+- `JWT_SECRET` (or your auth secret)
+- `GROQ_API_KEY`
 
 Example:
-
 ```env
 DATABASE_URL=postgresql://postgres:YOUR_DB_PASSWORD@localhost:5432/peblonotes
 JWT_SECRET=some_long_random_secret
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
+GROQ_API_KEY=gsk_********************************
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### 3) Run database migrations
+> Note: Groq API keys can expire (e.g., 7-day keys). If AI calls fail with 401, generate a new key and update `GROQ_API_KEY`.
 
+### 3) Database migrations
 ```bash
 npx prisma generate
-npx prisma migrate deploy
+npx prisma migrate dev
 ```
 
-(Optional, if you use Prisma Studio)
+(Optional)
 ```bash
 npx prisma studio
 ```
 
 ### 4) Start the dev server
-
 ```bash
 npm run dev
 ```
 
 App runs on: http://localhost:3000
+
+## Main Routes
+
+- Notes workspace: `/app`
+- Note editor: `/app/note/[id]`
+- Dashboard: `/app/dashboard`
+- Public share page: `/share/[shareId]`
 
 ## API Routes (high level)
 
@@ -100,18 +97,25 @@ App runs on: http://localhost:3000
 
 ### Sharing
 - `POST /api/notes/[id]/share`
-- `GET  /api/shared/[shareId]`
+- `GET  /api/share/[shareId]`
 
-### AI
+### AI (Groq)
 - `POST /api/notes/[id]/ai`
 
-> Note: AI route requires `OPENAI_API_KEY` if you want real OpenAI calls.
+## Submission Checklist
 
-## Common Troubleshooting
+- [ ] `npm run build` passes
+- [ ] `.env.local` is NOT committed (secrets safe)
+- [ ] Share link works in an incognito window
+- [ ] AI generate works with `GROQ_API_KEY`
+- [ ] Dashboard shows real metrics
 
-- If Prisma fails to connect: confirm Postgres is running and `DATABASE_URL` is correct.
-- If auth fails: ensure `JWT_SECRET` is set in `.env.local`.
+## Troubleshooting
+
+- Prisma connection errors: verify Postgres is running and `DATABASE_URL` is correct.
+- Auth errors: ensure `JWT_SECRET` is set in `.env.local`.
+- AI errors: ensure `GROQ_API_KEY` is set and not expired.
 
 ## License
 
-MIT (or update as needed).
+MIT
