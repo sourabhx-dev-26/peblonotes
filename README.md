@@ -12,6 +12,9 @@ It supports authentication, CRUD notes, tags, archiving, public share links, and
 - Sharing: generate a public share link and view note at `/share/[shareId]`
 - AI: generate summary, action items, and suggested title for a note (Groq)
 
+## Demo Video (5–10 min)
+- Walkthrough: <PASTE_YOUR_DRIVE_OR_UNLISTED_YOUTUBE_LINK_HERE>
+
 ## Tech Stack
 
 - Next.js + TypeScript
@@ -19,6 +22,13 @@ It supports authentication, CRUD notes, tags, archiving, public share links, and
 - PostgreSQL
 - Groq (OpenAI-compatible API)
 - ESLint
+
+## Architecture (High Level)
+- Next.js App Router used for both UI pages and API route handlers.
+- PostgreSQL is the primary database; Prisma ORM manages schema + queries.
+- Auth uses JWT-based sessions (token stored client-side and validated in API routes).
+- Notes, tags, sharing, and dashboard metrics are served via `/api/*` endpoints.
+- AI actions are executed server-side via Groq API and returned as structured text to the UI.
 
 ## Prerequisites
 
@@ -115,6 +125,13 @@ App runs on: http://localhost:3000
 - Prisma connection errors: verify Postgres is running and `DATABASE_URL` is correct.
 - Auth errors: ensure `JWT_SECRET` is set in `.env.local`.
 - AI errors: ensure `GROQ_API_KEY` is set and not expired.
+
+## Sample Outputs
+See `samples/` for:
+- Example API responses
+- AI-generated outputs (summary/action items)
+- Screenshots
+- Prisma schema (in `prisma/schema.prisma`)
 
 ## License
 
